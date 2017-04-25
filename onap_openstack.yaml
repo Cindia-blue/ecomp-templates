@@ -265,6 +265,7 @@ resources:
   dns_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_small }
       name: 
@@ -297,6 +298,7 @@ resources:
 
           template: |
             #!/bin/bash
+            set -x
 
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -369,6 +371,7 @@ resources:
     type: OS::Nova::Server
     depends_on: sdc_vm
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_xlarge }
       name: 
@@ -393,6 +396,7 @@ resources:
             __docker_version__: { get_param: docker_version }
           template: |
             #!/bin/bash
+            set -x
 
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -426,7 +430,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
 
             mkdir /opt/openecomp
             mkdir /opt/openecomp/aai
@@ -460,6 +465,7 @@ resources:
   mso_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1604_image }
       flavor: { get_param: flavor_large }
       name: 
@@ -489,6 +495,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
 
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -525,7 +532,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
 
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
@@ -538,9 +546,9 @@ resources:
             echo -n "__openstack_api_key__" | openssl aes-128-ecb -e -K $MSO_ENCRYPTION_KEY -nosalt | xxd -c 256 -p > /opt/config/api_key.txt
 
             # Rename network interface
-            sed -i "s/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"/g" /etc/default/grub
-            grub-mkconfig -o /boot/grub/grub.cfg
-            sed -i "s/ens3/eth0/g" /etc/network/interfaces.d/*.cfg
+            # sed -i "s/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"/g" /etc/default/grub
+            # grub-mkconfig -o /boot/grub/grub.cfg
+            # sed -i "s/ens3/eth0/g" /etc/network/interfaces.d/*.cfg
             
             # DNS/GW IP address configuration
             echo "nameserver __dns_ip_addr__" >> /etc/resolvconf/resolv.conf.d/head
@@ -566,6 +574,7 @@ resources:
   mrouter_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_large }
       name: 
@@ -589,6 +598,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
 
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -620,7 +630,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
 
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
@@ -654,6 +665,7 @@ resources:
   robot_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1604_image }
       flavor: { get_param: flavor_small }
       name: 
@@ -682,6 +694,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
 
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -721,7 +734,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
  
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
@@ -736,9 +750,9 @@ resources:
             git clone -b __gerrit_branch__ --single-branch http://gerrit.onap.org/r/testsuite/properties.git testsuite/properties
             
             # Rename network interface
-            sed -i "s/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"/g" /etc/default/grub
-            grub-mkconfig -o /boot/grub/grub.cfg
-            sed -i "s/ens3/eth0/g" /etc/network/interfaces.d/*.cfg
+            # sed -i "s/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"/g" /etc/default/grub
+            # grub-mkconfig -o /boot/grub/grub.cfg
+            # sed -i "s/ens3/eth0/g" /etc/network/interfaces.d/*.cfg
             
             # DNS/GW IP address configuration
             echo "nameserver __dns_ip_addr__" >> /etc/resolvconf/resolv.conf.d/head
@@ -764,6 +778,7 @@ resources:
   vid_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_medium }
       name: 
@@ -788,6 +803,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
 
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -820,7 +836,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
 
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
@@ -854,6 +871,7 @@ resources:
   sdnc_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_large }
       name: 
@@ -878,6 +896,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
 
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -910,7 +929,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
 
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
@@ -947,16 +967,17 @@ resources:
       name: vol1-sdc-data
       size: 100
 
-  sdc_volume_attachment:
-    type: OS::Cinder::VolumeAttachment
-    properties:
-      volume_id: { get_resource: sdc_volume_data }
-      instance_uuid: { get_resource: sdc_vm }
-      mountpoint: /dev/vdb
+  # sdc_volume_attachment:
+  #   type: OS::Cinder::VolumeAttachment
+  #   properties:
+  #     volume_id: { get_resource: sdc_volume_data }
+  #     instance_uuid: { get_resource: sdc_vm }
+  #     mountpoint: /dev/vdb
 
   sdc_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1604_image }
       flavor: { get_param: flavor_xlarge }
       name: 
@@ -967,6 +988,9 @@ resources:
       key_name: { get_resource: vm_key }
       networks:
         - port: { get_resource: sdc_private_port }
+      block_device_mapping:
+        - device_name: /dev/sdb
+          volume_id: {get_resource: sdc_volume_data}
       user_data_format: RAW
       user_data:
         str_replace:
@@ -984,6 +1008,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
             
             hn=`hostname`        
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -995,7 +1020,7 @@ resources:
             echo "__nexus_password__" > /opt/config/nexus_password.txt
             echo "__env_name__" > /opt/config/env_name.txt
             echo "__mr_ip_addr__" > /opt/config/mr_ip_addr.txt
-            echo "__public_ip__" > /opt/config/public_ip.txt
+            # echo "__public_ip__" > /opt/config/public_ip.txt
             echo "__docker_version__" > /opt/config/docker_version.txt
           
             # Download dependencies
@@ -1019,18 +1044,20 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
             chmod +x /opt/docker/docker-compose
 
             # Create partition and mount the external volume
             curl -k __nexus_repo__/org.openecomp.demo/boot/__artifacts_version__/asdc_ext_volume_partitions.txt -o /opt/asdc_ext_volume_partitions.txt
-            sfdisk /dev/vdb < /opt/asdc_ext_volume_partitions.txt
-            mkfs -t ext4 /dev/vdb1
+            sed -i 's/xvdb/sdb/g' /opt/asdc_ext_volume_partitions.txt
+            sfdisk /dev/sdb < /opt/asdc_ext_volume_partitions.txt
+            mkfs -t ext4 /dev/sdb1
             mkdir -p /data
-            mount /dev/vdb1 /data
-            echo "/dev/vdb1  /data           ext4    errors=remount-ro,noatime,barrier=0 0       1" >> /etc/fstab
+            mount /dev/sdb1 /data
+            echo "/dev/sdb1  /data           ext4    errors=remount-ro,noatime,barrier=0 0       1" >> /etc/fstab
 
             # Run SDC-specific instructions
             cd /opt
@@ -1053,9 +1080,9 @@ resources:
             EOF
             
             # Rename network interface
-            sed -i "s/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"/g" /etc/default/grub
-            grub-mkconfig -o /boot/grub/grub.cfg
-            sed -i "s/ens3/eth0/g" /etc/network/interfaces.d/*.cfg
+            # sed -i "s/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"/g" /etc/default/grub
+            # grub-mkconfig -o /boot/grub/grub.cfg
+            # sed -i "s/ens3/eth0/g" /etc/network/interfaces.d/*.cfg
             
             # DNS/GW IP address configuration
             echo "nameserver __dns_ip_addr__" >> /etc/resolvconf/resolv.conf.d/head
@@ -1081,6 +1108,7 @@ resources:
   portal_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_large }
       name: 
@@ -1106,6 +1134,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
             
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -1115,7 +1144,7 @@ resources:
             echo "__nexus_docker_repo__" > /opt/config/nexus_docker_repo.txt
             echo "__nexus_username__" > /opt/config/nexus_username.txt
             echo "__nexus_password__" > /opt/config/nexus_password.txt
-            echo "__public_ip__" > /opt/config/public_ip.txt
+            # echo "__public_ip__" > /opt/config/public_ip.txt
             echo "__docker_version__" > /opt/config/docker_version.txt
             
             # Download dependencies
@@ -1139,7 +1168,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
             chmod +x /opt/docker/docker-compose
@@ -1173,6 +1203,7 @@ resources:
   dcae_c_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_medium }
       name: 
@@ -1212,6 +1243,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
             
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -1245,7 +1277,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
             chmod +x /opt/docker/docker-compose
@@ -1307,6 +1340,7 @@ resources:
   policy_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_xlarge }
       name: 
@@ -1332,6 +1366,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
             
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -1341,7 +1376,7 @@ resources:
             echo "__nexus_docker_repo__" > /opt/config/nexus_docker_repo.txt
             echo "__nexus_username__" > /opt/config/nexus_username.txt
             echo "__nexus_password__" > /opt/config/nexus_password.txt
-            echo "__public_ip__" > /opt/config/public_ip.txt
+            # echo "__public_ip__" > /opt/config/public_ip.txt
             echo "__docker_version__" > /opt/config/docker_version.txt
 
             # Download dependencies
@@ -1365,7 +1400,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
             chmod +x /opt/docker/docker-compose
@@ -1398,6 +1434,7 @@ resources:
   appc_vm:
     type: OS::Nova::Server
     properties:
+      config_drive: true
       image: { get_param: ubuntu_1404_image }
       flavor: { get_param: flavor_large }
       name: 
@@ -1423,6 +1460,7 @@ resources:
             __gerrit_branch__: { get_param: gerrit_branch }
           template: |
             #!/bin/bash
+            set -x
             
             hn=`hostname`
             echo 127.0.0.1 $hn >> /etc/hosts
@@ -1456,7 +1494,8 @@ resources:
             apt-get update
             apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual
             apt-get install -y docker-engine
-            service docker start
+            echo "export http_proxy=http://proxy.vmware.com:3128/" >> /etc/default/docker
+            service docker restart
 
             mkdir /opt/docker
             curl -L https://github.com/docker/compose/releases/download/1.9.0/docker-compose-`uname -s`-`uname -m` > /opt/docker/docker-compose
